@@ -83,6 +83,8 @@ def prepare_train_features(examples):
 ```bash
 # 학습 예시 (train_dataset 사용)
 python train.py --output_dir ./models/train_dataset --do_train
+
+python train.py --output_dir ./models/train_dataset --do_train --do_eval --overwrite_cache --overwrite_output_dir
 ```
 
 ### eval
@@ -92,6 +94,8 @@ MRC 모델의 평가는(`--do_eval`) 따로 설정해야 합니다.  위 학습 
 ```bash
 # mrc 모델 평가 (train_dataset 사용)
 python train.py --output_dir ./outputs/train_dataset --model_name_or_path ./models/train_dataset/ --do_eval 
+
+
 ```
 
 ### inference
@@ -106,6 +110,8 @@ retrieval 과 mrc 모델의 학습이 완료되면 `inference.py` 를 이용해 
 # ODQA 실행 (test_dataset 사용)
 # wandb 가 로그인 되어있다면 자동으로 결과가 wandb 에 저장됩니다. 아니면 단순히 출력됩니다
 python inference.py --output_dir ./outputs/test_dataset/ --dataset_name ../data/test_dataset/ --model_name_or_path ./models/train_dataset/ --do_predict
+
+python inference.py --output_dir ./outputs/test_dataset/ --dataset_name ../data/test_dataset/ --model_name_or_path ./models/train_dataset/ --do_predict --overwrite_output_di
 ```
 
 ### How to submit
