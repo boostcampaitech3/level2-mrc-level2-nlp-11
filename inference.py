@@ -88,13 +88,95 @@ def main():
 
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
-        datasets = run_sparse_retrieval(
-            tokenizer.tokenize, datasets, training_args, data_args,
-        )
+        #datasets = run_sparse_retrieval(
+        #    tokenizer.tokenize, datasets, training_args, data_args,
+        #)
+        datasets = run_dense_retrieval(datasets)
 
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
         run_mrc(data_args, training_args, model_args, datasets, tokenizer, model)
+
+def run_dense_retrieval(datasets):
+
+
+    test_dataset = datasets["validation"].flatten_indices().to_pandas()
+
+    MODEL_NAME = 'klue/bert-base'
+    
+
+    model_config =  AutoConfig.from_pretrained(MODEL_NAME)
+    ret_tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    p_encoder = Dense_Retrieval_Model.from_pretrained('/opt/ml/input/code/dense_embeds/p_encoder.pth')
+    q_encoder = Dense_Retrieval_Model.from_pretrained('/opt/ml/input/code/dense_embeds/q_encoder.pth')
+
+
+    passage_model.to(device)
+    query_model.to(device)
+
+    #p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_embeds/p_encoder.pth'))
+    #q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_embeds/q_encoder.pth'))
+
+    with torch.no_grad():
+
+
+        p_encoder.eval()
+        q_encoder.eval()
+
+
+        print('opening wiki passage...')
+        with open('/opt/ml/input/data/wikipedia_documents.json', "r", encoding="utf-8") as f:
+                wiki = json.load(f)
+        context = list(dict.fromkeys([v["text"] for v in wiki.values()]))
+        print('wiki loaded!!!')
+
+        print('Start passage tokenizing.....')
+        for p in tqdm(context):
+            p = ret_tokenizer(p, padding="max_length", truncation=True, return_tensors='pt').to('cuda')
+            p_emb = p_encoder(**p).to('cpu').numpy()
+            p_embs.append(p_emb)
+
+        p_embs = torch.Tensor(p_embs).squeeze()  # (num_passage, emb_dim)
+        print('passage tokenizing done!!!!')
+
+
+        print('finding matching passage for querys.....')
+
+        queries=[]
+        passages=[]
+        mrc_ids=[]
+        for mrc_id,query in tqdm(zip(test_dataset['id'],test_dataset['question']):
+            queries.append(query)
+            mrc_ids.append(mrc_id)
+            passage=''
+            q_seqs_val = ret_tokenizer([query], padding="max_length", truncation=True, return_tensors='pt').to('cuda')
+            q_emb = q_encoder(**q_seqs_val).to('cpu')  #(num_query, emb_dim)
+
+
+            dot_prod_scores = torch.matmul(q_emb, torch.transpose(p_embs, 0, 1))
+            rank = torch.argsort(dot_prod_scores, dim=1, descending=True).squeeze()
+            k = 100
+
+            for i in range(k):
+                passage += context[rank[i]]
+                passage += ' '
+            passages.append(passage)
+        print('All passages for querys found!!!')
+
+
+
+    df = pd.DataFrame({'question':queries,'id':mrc_ids,'context':passages})
+    f = Features(
+            {
+                "context": Value(dtype="string", id=None),
+                "id": Value(dtype="string", id=None),
+                "question": Value(dtype="string", id=None),
+            }
+        )
+
+    complete_datasets = DatasetDict({"validation": Dataset.from_pandas(df, features=f)})
+    return complete_datasets
+
 
 
 def run_sparse_retrieval(
