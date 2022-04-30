@@ -72,10 +72,10 @@ def tokenized_data(dataset,tokenizer,train,num_neg):
         truncation=True,
         )
 
-    if train == True:
+    if train == True and num_neg != 'in_batch':
         p_with_neg = add_negative_sample(dataset,num_neg)
         tokenized_context = tokenizer(
-            list(p_with_neg),
+            p_with_neg,
             return_tensors="pt",
             padding='max_length',
             truncation=True,
