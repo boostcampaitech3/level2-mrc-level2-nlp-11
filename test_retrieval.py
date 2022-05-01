@@ -23,8 +23,8 @@ def main():
     dataset = load_data('/opt/ml/input/data/train.csv')
     val_dataset = dataset[3952:]
 
-    #MODEL_NAME = 'klue/bert-base'
-    MODEL_NAME = 'bert-base-multilingual-cased'
+    MODEL_NAME = 'klue/bert-base'
+    #MODEL_NAME = 'bert-base-multilingual-cased'
     
 
     model_config =  AutoConfig.from_pretrained(MODEL_NAME)
@@ -33,8 +33,8 @@ def main():
     p_encoder = Dense_Retrieval_Model.from_pretrained(MODEL_NAME)
     q_encoder = Dense_Retrieval_Model.from_pretrained(MODEL_NAME)
 
-    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/p_encoder.pth'))
-    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/q_encoder.pth'))
+    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/p_encoder_epoch7.pth'))
+    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/q_encoder_epoch7.pth'))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -65,8 +65,8 @@ def main():
 
         
     p_embs = torch.Tensor(p_embs).squeeze()  # (num_passage, emb_dim)
-
-    #p_embs = torch.load('/opt/ml/input/code/dense_embeds/dense_embedding.pth')  # (num_passage, emb_dim)
+    #torch.save(p_embs,'/opt/ml/input/code/dense_embeds/dense_embedding.pth')
+    p_embs = torch.load('/opt/ml/input/code/dense_embeds/dense_embedding.pth')  # (num_passage, emb_dim)
     print(p_embs.size(), q_emb.size())
 
     length = len(val_dataset['context'])
