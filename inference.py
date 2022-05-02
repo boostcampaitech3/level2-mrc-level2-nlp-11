@@ -89,10 +89,10 @@ def main():
 
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
-        #datasets = run_sparse_retrieval(
-        #    tokenizer.tokenize, datasets, training_args, data_args,
-        #)
-        datasets = run_dense_retrieval(datasets)
+        datasets = run_sparse_retrieval(
+            tokenizer.tokenize, datasets, training_args, data_args,
+        )
+        #datasets = run_dense_retrieval(datasets)
 
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
@@ -102,7 +102,8 @@ def run_dense_retrieval(datasets):
 
 
     test_dataset = datasets["validation"].flatten_indices().to_pandas()
-
+    test_dataset1=test_dataset[:300]
+    test_dataset2=test_dataset[300:]
     MODEL_NAME = 'klue/bert-base'
     
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -115,8 +116,8 @@ def run_dense_retrieval(datasets):
     p_encoder.to(device)
     q_encoder.to(device)
 
-    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_embeds/p_encoder.pth'))
-    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_embeds/q_encoder.pth'))
+    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/p_encoder.pth'))
+    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/q_encoder.pth'))
 
     print('opening wiki passage...')
     with open('/opt/ml/input/data/wikipedia_documents.json', "r", encoding="utf-8") as f:
@@ -124,27 +125,32 @@ def run_dense_retrieval(datasets):
     context = list(dict.fromkeys([v["text"] for v in wiki.values()]))
     print('wiki loaded!!!')
 
-
-    query = test_dataset['query']
+    query= test_dataset['question']
+    query1 = test_dataset1['question']
+    query2 = test_dataset2['question']
     mrc_ids =test_dataset['id']
-    length = len(mrc_ids)
+    length = len(test_dataset)
 
     p_embs=[]
     with torch.no_grad():
         p_encoder.eval()
         q_encoder.eval()
 
-        q_seqs_val = ret_tokenizer(query, padding="max_length", truncation=True, return_tensors='pt').to('cuda')
-        q_emb = q_encoder(**q_seqs_val).to('cpu')
-        #for p in tqdm(context):
-        #    p = ret_tokenizer(p, padding="max_length", truncation=True, return_tensors='pt').to('cuda')
-        #    p_emb = p_encoder(**p).to('cpu').numpy()
-        #    p_embs.append(p_emb)
+        q_seqs_val1 = ret_tokenizer(list(query1), padding="max_length", truncation=True, return_tensors='pt').to('cuda')
+        q_seqs_val2 = ret_tokenizer(list(query2), padding="max_length", truncation=True, return_tensors='pt').to('cuda')
+        q_emb1 = q_encoder(**q_seqs_val1).to('cpu')
+        q_emb2 = q_encoder(**q_seqs_val2).to('cpu')
+
+        for p in tqdm(context):
+            p = ret_tokenizer(p, padding="max_length", truncation=True, return_tensors='pt').to('cuda')
+            p_emb = p_encoder(**p).to('cpu').numpy()
+            p_embs.append(p_emb)
 
         
-    #p_embs = torch.Tensor(p_embs).squeeze()  # (num_passage, emb_dim)
+    p_embs = torch.Tensor(p_embs).squeeze()  # (num_passage, emb_dim)
 
-    p_embs = torch.load('/opt/ml/input/code/dense_embeds/dense_embedding.pth')  # (num_passage, emb_dim)
+    q_emb = torch.cat([q_emb1,q_emb2], dim=0)
+    #p_embs = torch.load('/opt/ml/input/code/dense_embeds/dense_embedding.pth')  # (num_passage, emb_dim)
     print(p_embs.size(), q_emb.size())
 
     #length = len(val_dataset['context'])

@@ -31,7 +31,7 @@ def main():
         learning_rate=2e-5,
         per_device_train_batch_size=6,
         per_device_eval_batch_size=2,
-        num_train_epochs=10,
+        num_train_epochs=6,
         weight_decay=0.01
     )
     #MODEL_NAME = 'bert-base-multilingual-cased'
@@ -43,8 +43,6 @@ def main():
     dataset = load_data('/opt/ml/input/data/train.csv')
     #additional_dataset = load_data('/opt/ml/input/data/squad.csv')
     #60407+3952
-
-
     additional_dataset = load_data('/opt/ml/input/data/qp_pair.csv')
 
     print('csv loading.....')
