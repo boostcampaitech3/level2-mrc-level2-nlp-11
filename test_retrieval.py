@@ -33,8 +33,8 @@ def main():
     p_encoder = Dense_Retrieval_Model.from_pretrained(MODEL_NAME)
     q_encoder = Dense_Retrieval_Model.from_pretrained(MODEL_NAME)
 
-    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/p_encoder.pth'))
-    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/q_encoder.pth'))
+    p_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/p_encoder_epoch0.pth'))
+    q_encoder.load_state_dict(torch.load('/opt/ml/input/code/dense_model/q_encoder_epoch0.pth'))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
