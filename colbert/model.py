@@ -48,7 +48,7 @@ class ColbertModel(BertPreTrainedModel):
                 for D_batch in tqdm(D):
                     D_batch = torch.Tensor(D_batch).squeeze()
                     p_seqeunce_output=D_batch.transpose(1,2) #(batch_size,hidden_size,p_sequence_length)
-                    q_sequence_output=Q.view(600,1,-1,self.dim) #(batch_size, 1, q_sequence_length, hidden_size)
+                    q_sequence_output=Q.view(240,1,-1,self.dim) #(batch_size, 1, q_sequence_length, hidden_size)
                     dot_prod = torch.matmul(q_sequence_output,p_seqeunce_output) #(batch_size,batch_size, q_sequence_length, p_seqence_length)
                     max_dot_prod_score =torch.max(dot_prod, dim=3)[0] #(batch_size,batch_size,q_sequnce_length)
                     score = torch.sum(max_dot_prod_score,dim=2)#(batch_size,batch_size)

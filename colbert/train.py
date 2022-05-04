@@ -65,7 +65,7 @@ def main():
 
 
     trained_model = train(args,train_dataset,model)
-    torch.save(trained_model.state_dict(), '/opt/ml/input/code/dense_model/colbert.pth')
+    torch.save(trained_model.state_dict(), '/opt/ml/input/code/colbert/best_model/colbert.pth')
 
 
 
@@ -138,7 +138,7 @@ def train(args, dataset, model):
             global_step += 1
             
             torch.cuda.empty_cache()
-        torch.save(model.state_dict(), f'/opt/ml/input/code/dense_model/colbert_epoch{epoch+1}.pth')
+        torch.save(model.state_dict(), f'/opt/ml/input/code/colbert/best_model/colbert_epoch{epoch+1}.pth')
         print(total_loss/steps)
 
         

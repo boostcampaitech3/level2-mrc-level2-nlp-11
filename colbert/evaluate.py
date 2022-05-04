@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 
 
 def main():
-    epoch=12
+    epoch=6
     MODEL_NAME = 'klue/bert-base'
 
     dataset = load_data('/opt/ml/input/data/train.csv')

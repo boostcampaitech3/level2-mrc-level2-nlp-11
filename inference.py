@@ -112,7 +112,7 @@ def run_colbert_retrieval(datasets):
     context = list(dict.fromkeys([v["text"] for v in wiki.values()]))
     print('wiki loaded!!!')
     rank = torch.load('/opt/ml/input/code/inferecne_colbert_rank.pth')
-    k = 2
+    k = 5
     passages=[]
 
     for idx in range(length):
