@@ -17,7 +17,7 @@ from transformers import (
     set_seed,
 )
 from utils_qa import check_no_error, postprocess_qa_predictions
-
+from model_qa import BertForQuestionAnsweringwithCNN
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +33,7 @@ def main():
     # [참고] argument를 manual하게 수정하고 싶은 경우에 아래와 같은 방식을 사용할 수 있습니다
     # training_args.per_device_train_batch_size = 4
     # print(training_args.per_device_train_batch_size)
-    training_args.num_train_epochs=3
+    training_args.num_train_epochs = 10
     print(f"model is from {model_args.model_name_or_path}")
     print(f"data is from {data_args.dataset_name}")
 
@@ -69,12 +69,14 @@ def main():
         # rust version이 비교적 속도가 빠릅니다.
         use_fast=True,
     )
-    model = AutoModelForQuestionAnswering.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-    )
 
+    # model = AutoModelForQuestionAnswering.from_pretrained(
+    #     model_args.model_name_or_path,
+    #     from_tf=bool(".ckpt" in model_args.model_name_or_path),
+    #     config=config,
+    # )
+    model = BertForQuestionAnsweringwithCNN(model_args.model_name_or_path, config)
+    
     print(
         type(training_args),
         type(model_args),
