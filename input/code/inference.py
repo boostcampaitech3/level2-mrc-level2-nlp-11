@@ -10,6 +10,7 @@ import sys
 from typing import Callable, Dict, List, NoReturn, Tuple
 
 import numpy as np
+from zmq import PROTOCOL_ERROR_ZMTP_MALFORMED_COMMAND_MESSAGE
 from arguments import DataTrainingArguments, ModelArguments
 from datasets import (
     Dataset,
@@ -89,8 +90,15 @@ def main():
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
         datasets = run_sparse_retrieval(
-            tokenizer.tokenize, datasets, training_args, data_args,
+            tokenizer.tokenize,
+            datasets,
+            training_args,
+            data_args,
         )
+
+    else:
+        # 그냥 context, id, question 으로 구성된 미리 retreival된 dataset 불러오는 코드 작성하기
+        datasets = load_from_disk("/opt/ml/input/data/colbert_result")
 
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
@@ -110,6 +118,7 @@ def run_sparse_retrieval(
     retriever = SparseRetrieval(
         tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path
     )
+
     retriever.get_sparse_embedding()
 
     if data_args.use_faiss:

@@ -9,7 +9,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="klue/bert-base",
+        default="monologg/koelectra-base-v2-finetuned-korquad-384",
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
@@ -43,7 +43,7 @@ class DataTrainingArguments:
         metadata={"help": "Overwrite the cached training and evaluation sets"},
     )
     preprocessing_num_workers: Optional[int] = field(
-        default=None,
+        default=4,
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
     max_seq_length: int = field(
@@ -75,7 +75,7 @@ class DataTrainingArguments:
         },
     )
     eval_retrieval: bool = field(
-        default=True,
+        default=False,
         metadata={"help": "Whether to run passage retrieval using sparse embedding."},
     )
     num_clusters: int = field(
