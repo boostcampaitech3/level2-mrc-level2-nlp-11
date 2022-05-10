@@ -33,7 +33,7 @@ from transformers import (
     set_seed,
 )
 from utils_qa import check_no_error, postprocess_qa_predictions
-
+from model_qa import BertForQuestionAnsweringwithCNN
 logger = logging.getLogger(__name__)
 
 
@@ -80,18 +80,18 @@ def main():
         else model_args.model_name_or_path,
         use_fast=True,
     )
-    model = AutoModelForQuestionAnswering.from_pretrained(
+    model = BertForQuestionAnsweringwithCNN.from_pretrained(
         model_args.model_name_or_path,
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
         config=config,
     )
-
+    
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
         datasets = run_sparse_retrieval(
             tokenizer.tokenize, datasets, training_args, data_args,
         )
-
+        
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
         run_mrc(data_args, training_args, model_args, datasets, tokenizer, model)
@@ -102,7 +102,7 @@ def run_sparse_retrieval(
     datasets: DatasetDict,
     training_args: TrainingArguments,
     data_args: DataTrainingArguments,
-    data_path: str = "../data",
+    data_path: str = "/opt/ml/input/data",
     context_path: str = "wikipedia_documents.json",
 ) -> DatasetDict:
 
@@ -119,7 +119,7 @@ def run_sparse_retrieval(
         )
     else:
         df = retriever.retrieve(datasets["validation"], topk=data_args.top_k_retrieval)
-
+    
     # test data 에 대해선 정답이 없으므로 id question context 로만 데이터셋이 구성됩니다.
     if training_args.do_predict:
         f = Features(
@@ -225,7 +225,7 @@ def run_mrc(
         remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,
     )
-
+    
     # Data collator
     # flag가 True이면 이미 max length로 padding된 상태입니다.
     # 그렇지 않다면 data collator에서 padding을 진행해야합니다.
