@@ -33,7 +33,7 @@ def main():
     # [참고] argument를 manual하게 수정하고 싶은 경우에 아래와 같은 방식을 사용할 수 있습니다
     # training_args.per_device_train_batch_size = 4
     # print(training_args.per_device_train_batch_size)
-    training_args.num_train_epochs = 10
+    training_args.num_train_epochs = 3
     print(f"model is from {model_args.model_name_or_path}")
     print(f"data is from {data_args.dataset_name}")
 
@@ -75,7 +75,11 @@ def main():
     #     from_tf=bool(".ckpt" in model_args.model_name_or_path),
     #     config=config,
     # )
-    model = BertForQuestionAnsweringwithCNN(model_args.model_name_or_path, config)
+    model = BertForQuestionAnsweringwithCNN.from_pretrained(
+        model_args.model_name_or_path,
+        from_tf=bool(".ckpt" in model_args.model_name_or_path),
+        config=config,
+    )
     
     print(
         type(training_args),
