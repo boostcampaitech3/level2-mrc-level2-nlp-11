@@ -1,6 +1,6 @@
 #https://github.com/huggingface/transformers/blob/main/src/transformers/models/bert/modeling_bert.py
 #https://www.youtube.com/watch?v=ovD_87gHZO4&t=811s
-from transformers import AutoModel, modeling_outputs, BertPreTrainedModel
+from transformers import modeling_outputs, BertPreTrainedModel, BertModel
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -13,7 +13,7 @@ class CNNLayer(nn.Module):
         self.conv1d_k1 = nn.Conv1d(in_channels = seq_len * 2, out_channels = seq_len, kernel_size = 1)
         #TODO2:[seq_len, 임베딩 사이즈] -> 임베딩 사이즈로 실험
         self.layer_norm = nn.LayerNorm([seq_len, embed_size])
-        self.drop_out = nn.Dropout(p=0.2)
+        self.drop_out = nn.Dropout(p=0.3)
 
     def forward(self, x):
         out = self.conv1d_k3(x)
@@ -32,15 +32,13 @@ class BertForQuestionAnsweringwithCNN(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
 
-    def __init__(self, model_name, config):
+    def __init__(self, config):
         super().__init__(config)
         self.num_labels = config.num_labels
-
-        self.bert = AutoModel.from_pretrained(model_name, config = config, add_pooling_layer=False)
+        
+        self.bert = BertModel(config, add_pooling_layer=False)
         self.cnnLayers = nn.ModuleList([CNNLayer(config.max_position_embeddings, config.hidden_size) for _ in range(5)])
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
-
-        self.post_init()
 
     def forward(
         self,
