@@ -12,7 +12,7 @@ from datasets import DatasetDict, load_from_disk, load_metric, concatenate_datas
 
 
 def main():
-    epoch = 6
+    epoch = 12
     MODEL_NAME = "klue/bert-base"
 
     org_dataset = load_from_disk("/opt/ml/input/data/train_dataset")
@@ -65,6 +65,7 @@ def main():
     length = len(val_dataset["context"])
 
     dot_prod_scores = model.get_score(q_emb, batched_p_embs, eval=True)
+    torch.save(dot_prod_scores, f"/opt/ml/input/code/colbert/score/score_{epoch}.pth")
 
     print(dot_prod_scores.size())
 

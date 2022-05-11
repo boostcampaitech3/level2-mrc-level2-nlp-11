@@ -25,9 +25,7 @@ def main():
     # 가능한 arguments 들은 ./arguments.py 나 transformer package 안의 src/transformers/training_args.py 에서 확인 가능합니다.
     # --help flag 를 실행시켜서 확인할 수 도 있습니다.
 
-    parser = HfArgumentParser(
-        (ModelArguments, DataTrainingArguments, TrainingArguments)
-    )
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     print(model_args.model_name_or_path)
 
@@ -59,14 +57,10 @@ def main():
     # AutoConfig를 이용하여 pretrained model 과 tokenizer를 불러옵니다.
     # argument로 원하는 모델 이름을 설정하면 옵션을 바꿀 수 있습니다.
     config = AutoConfig.from_pretrained(
-        model_args.config_name
-        if model_args.config_name is not None
-        else model_args.model_name_or_path,
+        model_args.config_name if model_args.config_name is not None else model_args.model_name_or_path,
     )
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name is not None
-        else model_args.model_name_or_path,
+        model_args.tokenizer_name if model_args.tokenizer_name is not None else model_args.model_name_or_path,
         # 'use_fast' argument를 True로 설정할 경우 rust로 구현된 tokenizer를 사용할 수 있습니다.
         # False로 설정할 경우 python으로 구현된 tokenizer를 사용할 수 있으며,
         # rust version이 비교적 속도가 빠릅니다.
@@ -116,9 +110,7 @@ def run_mrc(
     pad_on_right = tokenizer.padding_side == "right"
 
     # 오류가 있는지 확인합니다.
-    last_checkpoint, max_seq_length = check_no_error(
-        data_args, training_args, datasets, tokenizer
-    )
+    last_checkpoint, max_seq_length = check_no_error(data_args, training_args, datasets, tokenizer)
 
     # Train preprocessing / 전처리를 진행합니다.
     def prepare_train_features(examples):
@@ -177,19 +169,13 @@ def run_mrc(
                     token_end_index -= 1
 
                 # 정답이 span을 벗어났는지 확인합니다(정답이 없는 경우 CLS index로 label되어있음).
-                if not (
-                    offsets[token_start_index][0] <= start_char
-                    and offsets[token_end_index][1] >= end_char
-                ):
+                if not (offsets[token_start_index][0] <= start_char and offsets[token_end_index][1] >= end_char):
                     tokenized_examples["start_positions"].append(cls_index)
                     tokenized_examples["end_positions"].append(cls_index)
                 else:
                     # token_start_index 및 token_end_index를 answer의 끝으로 이동합니다.
                     # Note: answer가 마지막 단어인 경우 last offset을 따라갈 수 있습니다(edge case).
-                    while (
-                        token_start_index < len(offsets)
-                        and offsets[token_start_index][0] <= start_char
-                    ):
+                    while token_start_index < len(offsets) and offsets[token_start_index][0] <= start_char:
                         token_start_index += 1
                     tokenized_examples["start_positions"].append(token_start_index - 1)
                     while offsets[token_end_index][1] >= end_char:
@@ -224,7 +210,7 @@ def run_mrc(
             stride=data_args.doc_stride,
             return_overflowing_tokens=True,
             return_offsets_mapping=True,
-            # return_token_type_ids=False, # roberta모델을 사용할 경우 False, bert를 사용할 경우 True로 표기해야합니다.
+            return_token_type_ids=False,  # roberta모델을 사용할 경우 False, bert를 사용할 경우 True로 표기해야합니다.
             padding="max_length" if data_args.pad_to_max_length else False,
         )
 
@@ -246,8 +232,7 @@ def run_mrc(
 
             # Set to None the offset_mapping을 None으로 설정해서 token position이 context의 일부인지 쉽게 판별 할 수 있습니다.
             tokenized_examples["offset_mapping"][i] = [
-                (o if sequence_ids[k] == context_index else None)
-                for k, o in enumerate(tokenized_examples["offset_mapping"][i])
+                (o if sequence_ids[k] == context_index else None) for k, o in enumerate(tokenized_examples["offset_mapping"][i])
             ]
         return tokenized_examples
 
@@ -266,9 +251,7 @@ def run_mrc(
     # Data collator
     # flag가 True이면 이미 max length로 padding된 상태입니다.
     # 그렇지 않다면 data collator에서 padding을 진행해야합니다.
-    data_collator = DataCollatorWithPadding(
-        tokenizer, pad_to_multiple_of=8 if training_args.fp16 else None
-    )
+    data_collator = DataCollatorWithPadding(tokenizer, pad_to_multiple_of=8 if training_args.fp16 else None)
 
     # Post-processing:
     def post_processing_function(examples, features, predictions, training_args):
@@ -281,20 +264,13 @@ def run_mrc(
             output_dir=training_args.output_dir,
         )
         # Metric을 구할 수 있도록 Format을 맞춰줍니다.
-        formatted_predictions = [
-            {"id": k, "prediction_text": v} for k, v in predictions.items()
-        ]
+        formatted_predictions = [{"id": k, "prediction_text": v} for k, v in predictions.items()]
         if training_args.do_predict:
             return formatted_predictions
 
         elif training_args.do_eval:
-            references = [
-                {"id": ex["id"], "answers": ex[answer_column_name]}
-                for ex in datasets["validation"]
-            ]
-            return EvalPrediction(
-                predictions=formatted_predictions, label_ids=references
-            )
+            references = [{"id": ex["id"], "answers": ex[answer_column_name]} for ex in datasets["validation"]]
+            return EvalPrediction(predictions=formatted_predictions, label_ids=references)
 
     metric = load_metric("squad")
 
@@ -341,9 +317,7 @@ def run_mrc(
                 writer.write(f"{key} = {value}\n")
 
         # State 저장
-        trainer.state.save_to_json(
-            os.path.join(training_args.output_dir, "trainer_state.json")
-        )
+        trainer.state.save_to_json(os.path.join(training_args.output_dir, "trainer_state.json"))
 
     # Evaluation
     if training_args.do_eval:

@@ -9,22 +9,16 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default="monologg/koelectra-base-v2-finetuned-korquad-384",
-        metadata={
-            "help": "Path to pretrained model or model identifier from huggingface.co/models"
-        },
+        default="klue/roberta-large",
+        metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"},
     )
     config_name: Optional[str] = field(
         default=None,
-        metadata={
-            "help": "Pretrained config name or path if not the same as model_name"
-        },
+        metadata={"help": "Pretrained config name or path if not the same as model_name"},
     )
     tokenizer_name: Optional[str] = field(
         default=None,
-        metadata={
-            "help": "Pretrained tokenizer name or path if not the same as model_name"
-        },
+        metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"},
     )
 
 
@@ -63,9 +57,7 @@ class DataTrainingArguments:
     )
     doc_stride: int = field(
         default=128,
-        metadata={
-            "help": "When splitting up a long document into chunks, how much stride to take between chunks."
-        },
+        metadata={"help": "When splitting up a long document into chunks, how much stride to take between chunks."},
     )
     max_answer_length: int = field(
         default=30,
@@ -78,15 +70,9 @@ class DataTrainingArguments:
         default=False,
         metadata={"help": "Whether to run passage retrieval using sparse embedding."},
     )
-    num_clusters: int = field(
-        default=64, metadata={"help": "Define how many clusters to use for faiss."}
-    )
+    num_clusters: int = field(default=64, metadata={"help": "Define how many clusters to use for faiss."})
     top_k_retrieval: int = field(
         default=10,
-        metadata={
-            "help": "Define how many top-k passages to retrieve based on similarity."
-        },
+        metadata={"help": "Define how many top-k passages to retrieve based on similarity."},
     )
-    use_faiss: bool = field(
-        default=False, metadata={"help": "Whether to build with faiss"}
-    )
+    use_faiss: bool = field(default=False, metadata={"help": "Whether to build with faiss"})
