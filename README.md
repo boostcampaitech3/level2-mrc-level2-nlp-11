@@ -112,7 +112,7 @@ python inference.py --output_dir ./outputs/test_dataset/ --dataset_name ../data/
 
 ![Untitled](Open-Domain-Question-Answering%2076c1043df3d544bc974b75b38bb6d2be/Untitled%201.png)
 
-- ColBERT 는 question 과 passage 에 속한 모든 토큰들에 대하여 유사도를 계산하기 때문에 더 미세한 문맥적 유사도가 계산될 수 있습니다.
+- ColBERT 는 question 과 passage 에 속한 모든 토큰들에 대하여 유사도를 계산하기 때문에 더 미세한 문맥적 유사도를 계산할 수 있습니다.
 - ColBERT 의 Retrieval 성능은 다음과 같습니다.
 
 ![Untitled](Open-Domain-Question-Answering%2076c1043df3d544bc974b75b38bb6d2be/Untitled%202.png)
