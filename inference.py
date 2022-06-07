@@ -89,14 +89,49 @@ def main():
 
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
-        datasets = run_sparse_retrieval(
-            tokenizer.tokenize, datasets, training_args, data_args,
-        )
+        #datasets = run_sparse_retrieval(
+        #    tokenizer.tokenize, datasets, training_args, data_args,
+        #)
         #datasets = run_dense_retrieval(datasets)
+        datasets = run_colbert_retrieval(datasets)
 
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
         run_mrc(data_args, training_args, model_args, datasets, tokenizer, model)
+
+def run_colbert_retrieval(datasets):
+    test_dataset = datasets["validation"].flatten_indices().to_pandas()
+
+    query= list(test_dataset['question'])
+    mrc_ids =test_dataset['id']
+    length = len(test_dataset)
+
+    print('opening wiki passage...')
+    with open('/opt/ml/input/data/wikipedia_documents.json', "r", encoding="utf-8") as f:
+        wiki = json.load(f)
+    context = list(dict.fromkeys([v["text"] for v in wiki.values()]))
+    print('wiki loaded!!!')
+    rank = torch.load('/opt/ml/input/code/inferecne_colbert_rank.pth')
+    k = 5
+    passages=[]
+
+    for idx in range(length):
+        passage=''
+        for i in range(k):
+            passage += context[rank[idx][i]]
+            passage += ' '
+        passages.append(passage)
+    df = pd.DataFrame({'question':query,'id':mrc_ids,'context':passages})
+    f = Features(
+            {
+                "context": Value(dtype="string", id=None),
+                "id": Value(dtype="string", id=None),
+                "question": Value(dtype="string", id=None),
+            }
+        )
+
+    complete_datasets = DatasetDict({"validation": Dataset.from_pandas(df, features=f)})
+    return complete_datasets
 
 def run_dense_retrieval(datasets):
 

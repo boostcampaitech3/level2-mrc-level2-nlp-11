@@ -16,33 +16,24 @@ Question Answering (QA)은 다양한 종류의 질문에 대해 대답하는 인
 
 <br>
 
-## **요구 사항**
-
-```yaml
-# 필요한 파이썬 패키지 설치. 
-bash ./install/install_requirements.sh
-```
-
-<br>
 
 ## **파일 구성**
 
 ```yaml
-./assets/                # readme 에 필요한 이미지 저장
-./install/               # 요구사항 설치 파일 
-./data/                  # 전체 데이터. 아래 상세 설명
 
                          # dense retriever 모듈
-colebert/train.py        # colbert 모델 학습
+colbert/train.py         # colbert 모델 학습
 colbert/inference.py     # colbert 모델 평가
 
-e_search.ipynb           # sparse retreiver 모듈
+                         # sparse retreiver 모듈
+e_search.ipynb           # Elastic Search 모듈
+
 arguments.py             # 실행되는 모든 argument가 dataclass 의 형태로 저장되어있음
 trainer_qa.py            # MRC 모델 학습에 필요한 trainer 제공.
 utils_qa.py              # 기타 유틸 함수 제공 
 
 train.py                 # MRC, Retrieval 모델 학습 및 평가 
-inference.py		 # ODQA 모델 평가 또는 제출 파일 (predictions.json) 생성
+inference.py	    	 # ODQA 모델 평가 또는 제출 파일 (predictions.json) 생성
 ```
 
 <br>
