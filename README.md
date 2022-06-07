@@ -1,6 +1,6 @@
 # Open-Domain-Question-Answering
 
-## 네이버 부스트캠프 AI Tech 3기 (최종2위)
+### 네이버 부스트캠프 AI Tech 3기 (최종2위)
 
 <br>
 
@@ -32,7 +32,7 @@ bash ./install/install_requirements.sh
 ./install/               # 요구사항 설치 파일 
 ./data/                  # 전체 데이터. 아래 상세 설명
 
-												 # dense retriever 모듈
+                         # dense retriever 모듈
 colebert/train.py        # colbert 모델 학습
 colbert/inference.py     # colbert 모델 평가
 
@@ -42,7 +42,7 @@ trainer_qa.py            # MRC 모델 학습에 필요한 trainer 제공.
 utils_qa.py              # 기타 유틸 함수 제공 
 
 train.py                 # MRC, Retrieval 모델 학습 및 평가 
-inference.py		         # ODQA 모델 평가 또는 제출 파일 (predictions.json) 생성
+inference.py		 # ODQA 모델 평가 또는 제출 파일 (predictions.json) 생성
 ```
 
 <br>
@@ -153,13 +153,13 @@ python inference.py --output_dir ./outputs/test_dataset/ --dataset_name ../data/
 
 # 5. Reference
 
-****Retrieval****
+**Retrieval**
 
 - ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT - [https://github.com/stanford-futuredata/ColBERT](https://github.com/stanford-futuredata/ColBERT)
 - Elasticsearch - [https://github.com/elastic/elasticsearch](https://github.com/elastic/elasticsearch)
 - BM25 [https://github.com/dorianbrown/rank_bm25](https://github.com/dorianbrown/rank_bm25)
 
-R**eader**
+**Reader**
 
 - CNN-Layer - SAMSUNG SDS
 - • [klue/roberta-large](https://huggingface.co/klue/roberta-large)
