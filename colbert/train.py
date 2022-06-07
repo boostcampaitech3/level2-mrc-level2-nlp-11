@@ -49,7 +49,7 @@ def main():
 
 
 
-    #토크나이저 수정필요
+    #토크나이저
     train_context, train_query = tokenize_colbert(train_dataset, tokenizer,corpus='both')
 
 
@@ -76,7 +76,7 @@ def train(args, dataset, model):
     train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=args.per_device_train_batch_size)
     
 
-    ### 추가 부분 ###
+    # Optimizer 세팅
     no_decay = ['bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
             {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)], 'weight_decay': args.weight_decay},
@@ -84,12 +84,11 @@ def train(args, dataset, model):
             ]
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-    ### 추가 부분 ###
-    
     t_total = len(train_dataloader) // args.gradient_accumulation_steps * args.num_train_epochs
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total)
 
-    # Start training!
+
+    # Training 시작
     global_step = 0
     
     model.zero_grad()
@@ -129,7 +128,6 @@ def train(args, dataset, model):
             sim_scores = F.log_softmax(outputs, dim=1)
 
             loss = F.nll_loss(sim_scores, targets)
-            #print(loss)
             total_loss+=loss
             loss.backward()
             optimizer.step()

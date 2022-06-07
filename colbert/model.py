@@ -15,7 +15,7 @@ class ColbertModel(BertPreTrainedModel):
     def __init__(self, config):
         super(ColbertModel, self).__init__(config)
 
-        #모델 수정 가능-현재는 기존 BertModel 사용중
+        #BertModel 사용
         self.similarity_metric = 'cosine'
         self.dim = 128
         self.batch = 8

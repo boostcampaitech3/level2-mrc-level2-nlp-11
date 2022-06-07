@@ -47,7 +47,7 @@ def main():
 
         model.eval()
 
-        #토크나이저 수정필요
+        #토크나이저
         q_seqs_val = tokenize_colbert(query,tokenizer,corpus='query').to('cuda')
         q_emb = model.query(**q_seqs_val).to('cpu')
 

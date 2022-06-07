@@ -1,7 +1,10 @@
+
+
+
+
+
 def run_colbert_retrieval(datasets):
     test_dataset = datasets["validation"].flatten_indices().to_pandas()
-    test_dataset1=test_dataset[:300]
-    test_dataset2=test_dataset[300:]
     MODEL_NAME = 'klue/bert-base'
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -26,8 +29,6 @@ def run_colbert_retrieval(datasets):
     print('wiki loaded!!!')
 
     query= list(test_dataset['question'])
-    query1 = list(test_dataset1['question'])
-    query2 = list(test_dataset2['question'])
     mrc_ids =test_dataset['id']
     length = len(test_dataset)
 
@@ -35,11 +36,6 @@ def run_colbert_retrieval(datasets):
     batched_p_embs = []
     with torch.no_grad():
         model.eval
-        #q_seqs_val1 = tokenize_colbert(query1,ret_tokenizer,corpus='query').to('cuda')
-        #q_seqs_val2 = tokenize_colbert(query2,ret_tokenizer,corpus='query').to('cuda')
-        #q_emb1 = model.query(**q_seqs_val1).to('cpu')
-        #q_emb2 = model.query(**q_seqs_val2).to('cpu')
-        #q_emb = torch.cat([q_emb1,q_emb2], dim=0)
 
         q_seqs_val = tokenize_colbert(query,ret_tokenizer,corpus='query').to('cuda')
         q_emb = model.query(**q_seqs_val).to('cpu')
@@ -58,7 +54,6 @@ def run_colbert_retrieval(datasets):
                 p_embs=[]
         batched_p_embs.append(p_embs)
     
-    #q_emb = torch.cat([q_emb1,q_emb2], dim=1)
 
 
     dot_prod_scores = model.get_score(q_emb,batched_p_embs,eval=True)
